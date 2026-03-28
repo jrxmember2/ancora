@@ -1,0 +1,9 @@
+<section class="page-header">
+    <h1 class="page-title">Tipos do módulo Clientes</h1>
+    <p class="page-subtitle">Gerencie listas expansíveis para tipos de condomínio e unidade.</p>
+</section>
+<?php View::partial('clientes/views/partials/subnav', ['currentRoute' => $currentRoute]); ?>
+<div class="dashboard-grid dashboard-grid--clients-detail">
+    <div class="card"><div class="card-header"><h3 class="card-title">Tipos de condomínio</h3></div><div class="card-body stack-md"><form method="post" action="<?= htmlspecialchars(base_url('/clientes/config/types/store')); ?>" class="section-actions"><?= csrf_field(); ?><input type="hidden" name="scope" value="condominium"><input class="form-control" type="text" name="name" placeholder="Novo tipo"><button class="btn btn-primary" type="submit">Adicionar</button></form><div class="mini-list"><?php foreach ($condominiumTypes as $type): ?><div class="mini-list__item"><strong><?= htmlspecialchars($type['name']); ?></strong><span><?= (int) $type['is_active'] === 1 ? 'Ativo' : 'Inativo'; ?></span></div><?php endforeach; ?></div></div></div>
+    <div class="card"><div class="card-header"><h3 class="card-title">Tipos de unidade</h3></div><div class="card-body stack-md"><form method="post" action="<?= htmlspecialchars(base_url('/clientes/config/types/store')); ?>" class="section-actions"><?= csrf_field(); ?><input type="hidden" name="scope" value="unit"><input class="form-control" type="text" name="name" placeholder="Novo tipo"><button class="btn btn-primary" type="submit">Adicionar</button></form><div class="mini-list"><?php foreach ($unitTypes as $type): ?><div class="mini-list__item"><strong><?= htmlspecialchars($type['name']); ?></strong><span><?= (int) $type['is_active'] === 1 ? 'Ativo' : 'Inativo'; ?></span></div><?php endforeach; ?></div></div></div>
+</div>

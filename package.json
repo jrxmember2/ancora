@@ -1,0 +1,15 @@
+{
+  "name": "ancora-hub",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Build de estilos Tailwind CSS + daisyUI para o Âncora HUB",
+  "scripts": {
+    "dev": "npx @tailwindcss/cli -i ./resources/css/app.css -o ./public/build/app.css --watch",
+    "build": "npx @tailwindcss/cli -i ./resources/css/app.css -o ./public/build/app.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.13",
+    "daisyui": "^5.5.19",
+    "tailwindcss": "^4.1.13"
+  }
+}

@@ -1,0 +1,12 @@
+/node_modules
+/.idea
+/.vscode
+/.DS_Store
+/public/build/*.map
+/storage/logs/*.log
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+/storage/temp/*
+!/storage/temp/.gitkeep
+/public/assets/uploads/*
+!/public/assets/uploads/.gitkeep
