@@ -1,3 +1,8 @@
+# Âncora
+
+## Observação sobre o build CSS
+Esta versão está preparada para deploy estável no EasyPanel usando a folha de estilos consolidada em `public/build/app.css` a partir dos arquivos de `public/assets/css/`. O pipeline Tailwind/daisyUI foi mantido no repositório para evolução posterior, mas o Dockerfile de produção atual não executa `npm run build`, evitando falhas de `@apply` com classes de componente personalizadas.
+
 # Âncora HUB — pacote refatorado para EasyPanel
 
 Este pacote foi preparado a partir da sua fonte original para facilitar:
