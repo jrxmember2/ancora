@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
-COPY docker/apache/apache2.conf /etc/apache2/apache2.conf
 
 WORKDIR /var/www/html
 COPY . .
