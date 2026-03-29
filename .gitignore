@@ -10,3 +10,5 @@
 !/storage/temp/.gitkeep
 /public/assets/uploads/*
 !/public/assets/uploads/.gitkeep
+
+.env
