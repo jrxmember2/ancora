@@ -38,11 +38,12 @@ if (!empty($_SESSION['auth_user']['theme_preference'])) {
 }
 ?>
 <!doctype html>
-<html lang="pt-BR" data-theme="<?= htmlspecialchars($currentTheme, ENT_QUOTES, 'UTF-8'); ?>">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark light">
+
     <title><?= htmlspecialchars(($title ?? 'Painel') . ' | ' . $appDisplayName, ENT_QUOTES, 'UTF-8'); ?></title>
 
     <script>
@@ -68,21 +69,48 @@ if (!empty($_SESSION['auth_user']['theme_preference'])) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.min.css">
-    <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('/public/build/app.css'), ENT_QUOTES, 'UTF-8'); ?>">
-</head>
 
-<body
-    class="app-body"
-    style="
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#941415',
+                        'primary-focus': '#b71c1c',
+                    }
+                }
+            },
+            daisyui: {
+                themes: [
+                    {
+                        light: {
+                            ...require("daisyui/src/theming/themes")["light"],
+                            primary: '#941415',
+                            "primary-focus": '#b71c1c',
+                        },
+                        dark: {
+                            ...require("daisyui/src/theming/themes")["dark"],
+                            primary: '#941415',
+                            "primary-focus": '#b71c1c',
+                        },
+                    },
+                ],
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.min.css">
+</head>
+<body class="app-body" style="
         --brand-logo-height-desktop: <?= (int) $brandLogoHeightDesktop; ?>px;
         --brand-logo-height-mobile: <?= (int) $brandLogoHeightMobile; ?>px;
         --brand-logo-height-login: <?= (int) $brandLogoHeightLogin; ?>px;
-    "
->
+    ">
+
     <?php if (auth_check()): ?>
-        <div class="app-shell min-h-screen">
+        <div class="app-shell">
             <?php View::partial('layouts/header', [
                 'appDisplayName'   => $appDisplayName,
                 'brandLogoLightUrl'=> $brandLogoLightUrl,
@@ -93,14 +121,14 @@ if (!empty($_SESSION['auth_user']['theme_preference'])) {
             <main class="page-content">
                 <div class="container page-content__inner">
                     <?php if (!empty($_SESSION['flash_success'])): ?>
-                        <div class="alert-banner alert-banner--success mb-4">
+                        <div class="alert-banner alert-banner--success mb-16">
                             <?= htmlspecialchars($_SESSION['flash_success']); ?>
                         </div>
                         <?php unset($_SESSION['flash_success']); ?>
                     <?php endif; ?>
 
                     <?php if (!empty($_SESSION['flash_error'])): ?>
-                        <div class="alert-banner alert-banner--danger mb-4">
+                        <div class="alert-banner alert-banner--danger mb-16">
                             <?= htmlspecialchars($_SESSION['flash_error']); ?>
                         </div>
                         <?php unset($_SESSION['flash_error']); ?>
@@ -110,29 +138,31 @@ if (!empty($_SESSION['auth_user']['theme_preference'])) {
                 </div>
             </main>
 
-            <footer class="main-footer border-t border-base-300/70 bg-base-100/75 backdrop-blur-sm">
-                <div class="container main-footer__inner py-6">
+            <footer class="main-footer">
+                <div class="container main-footer__inner">
                     <div class="main-footer__brand-block">
-                        <div class="main-footer__brand text-sm font-semibold tracking-[0.18em] uppercase text-base-content/62">
+                        <div class="main-footer__brand">
                             <?= htmlspecialchars($appDisplayName); ?>
                         </div>
                     </div>
 
-                    <div class="main-footer__meta flex flex-wrap gap-3 text-sm text-base-content/56">
+                    <div class="main-footer__meta">
                         <?php if ($companyAddress !== ''): ?>
                             <span><?= htmlspecialchars($companyAddress); ?></span>
                         <?php endif; ?>
+
                         <?php if ($companyPhone !== ''): ?>
                             <span><?= htmlspecialchars($companyPhone); ?></span>
                         <?php endif; ?>
+
                         <?php if ($companyEmail !== ''): ?>
                             <span><?= htmlspecialchars($companyEmail); ?></span>
                         <?php endif; ?>
                     </div>
                 </div>
-                <div class="container main-footer__bottom flex flex-wrap items-center justify-between gap-3 border-t border-base-300/70 py-4 text-xs text-base-content/48">
+                <div class="container main-footer__bottom">
                     <span class="main-footer__copyright">&copy; <?= date('Y'); ?> <?= htmlspecialchars($appDisplayName); ?></span>
-                    <span class="main-footer__dev">Arquitetura e implantação: Serratech Soluções em TI</span>
+                    <span class="main-footer__dev">Desenvolvido por: Serratech Soluções em TI</span>
                 </div>
             </footer>
         </div>
@@ -140,8 +170,9 @@ if (!empty($_SESSION['auth_user']['theme_preference'])) {
         <?php require $viewFile; ?>
     <?php endif; ?>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="<?= htmlspecialchars(base_url('/assets/js/app.js')); ?>"></script>
     <script src="<?= htmlspecialchars(base_url('/assets/js/masks.js')); ?>"></script>
     <script src="<?= htmlspecialchars(base_url('/assets/js/charts.js')); ?>"></script>

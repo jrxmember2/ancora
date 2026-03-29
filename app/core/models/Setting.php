@@ -19,23 +19,6 @@ final class Setting
         }
     }
 
-    private static function upsertSql(): string
-    {
-        if (Database::isPgsql()) {
-            return 'INSERT INTO app_settings (setting_key, setting_value, description)
-                    VALUES (:key, :value, :description)
-                    ON CONFLICT (setting_key) DO UPDATE SET
-                        setting_value = EXCLUDED.setting_value,
-                        description = EXCLUDED.description';
-        }
-
-        return 'INSERT INTO app_settings (setting_key, setting_value, description)
-                VALUES (:key, :value, :description)
-                ON DUPLICATE KEY UPDATE
-                    setting_value = VALUES(setting_value),
-                    description = VALUES(description)';
-    }
-
     public static function all(): array
     {
         self::loadCache();
@@ -50,7 +33,13 @@ final class Setting
 
     public static function set(string $key, ?string $value, ?string $description = null): bool
     {
-        $stmt = Database::connection()->prepare(self::upsertSql());
+        $stmt = Database::connection()->prepare(
+            'INSERT INTO app_settings (setting_key, setting_value, description)
+             VALUES (:key, :value, :description)
+             ON DUPLICATE KEY UPDATE
+                setting_value = VALUES(setting_value),
+                description = VALUES(description)'
+        );
 
         $ok = $stmt->execute([
             'key' => $key,
@@ -72,7 +61,13 @@ final class Setting
         try {
             $pdo->beginTransaction();
 
-            $stmt = $pdo->prepare(self::upsertSql());
+            $stmt = $pdo->prepare(
+                'INSERT INTO app_settings (setting_key, setting_value, description)
+                 VALUES (:key, :value, :description)
+                 ON DUPLICATE KEY UPDATE
+                    setting_value = VALUES(setting_value),
+                    description = VALUES(description)'
+            );
 
             foreach ($settings as $key => $payload) {
                 $value = is_array($payload) ? ($payload['value'] ?? null) : $payload;

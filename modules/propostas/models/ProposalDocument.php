@@ -30,7 +30,7 @@ final class ProposalDocument
         $stmt = Database::connection()->prepare($sql);
         $stmt->execute($data);
 
-        return Database::lastInsertId('proposal_documents');
+        return (int)Database::connection()->lastInsertId();
     }
 
     public static function update(int $id, array $data): bool    {

@@ -21,7 +21,7 @@ final class ClientAttachment
     {
         $stmt = Database::connection()->prepare('INSERT INTO client_attachments (related_type, related_id, file_role, original_name, stored_name, relative_path, mime_type, file_size, uploaded_by) VALUES (:related_type, :related_id, :file_role, :original_name, :stored_name, :relative_path, :mime_type, :file_size, :uploaded_by)');
         $stmt->execute($data);
-        return Database::lastInsertId('client_attachments');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function delete(int $id): bool

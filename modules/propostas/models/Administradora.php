@@ -34,7 +34,7 @@ final class Administradora
             'is_active' => $data['is_active'] ?? 1,
             'sort_order' => $data['sort_order'] ?? 0,
         ]);
-        return Database::lastInsertId('administradoras');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function update(int $id, array $data): bool

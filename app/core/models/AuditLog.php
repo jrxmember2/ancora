@@ -19,7 +19,7 @@ final class AuditLog
             'user_agent' => $data['user_agent'],
         ]);
 
-        return Database::lastInsertId('audit_logs');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function paginateFiltered(array $filters, int $page = 1, int $perPage = 50): array
@@ -32,7 +32,7 @@ final class AuditLog
         $params = [];
 
         if (!empty($filters['q'])) {
-            $where[] = '(' . Database::ciLike('user_email', ':q') . ' OR ' . Database::ciLike('action', ':q') . ' OR ' . Database::ciLike('details', ':q') . ')';
+            $where[] = '(user_email LIKE :q OR action LIKE :q OR details LIKE :q)';
             $params['q'] = '%' . $filters['q'] . '%';
         }
         if (!empty($filters['action'])) {
@@ -44,11 +44,11 @@ final class AuditLog
             $params['user_email'] = $filters['user_email'];
         }
         if (!empty($filters['date_from'])) {
-            $where[] = Database::dateOnly('created_at') . ' >= :date_from';
+            $where[] = 'DATE(created_at) >= :date_from';
             $params['date_from'] = $filters['date_from'];
         }
         if (!empty($filters['date_to'])) {
-            $where[] = Database::dateOnly('created_at') . ' <= :date_to';
+            $where[] = 'DATE(created_at) <= :date_to';
             $params['date_to'] = $filters['date_to'];
         }
 
@@ -95,9 +95,9 @@ final class AuditLog
         $stmt = Database::connection()->prepare('
         SELECT id, user_email, action, details, created_at
         FROM audit_logs
-        WHERE ' . Database::ciLike('user_email', ':q1') . '
-           OR ' . Database::ciLike('action', ':q2') . '
-           OR ' . Database::ciLike('details', ':q3') . '
+        WHERE user_email LIKE :q1
+           OR action LIKE :q2
+           OR details LIKE :q3
         ORDER BY created_at DESC
         LIMIT :limit
     ');

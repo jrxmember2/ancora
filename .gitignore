@@ -1,14 +1,48 @@
-/node_modules
-/.idea
-/.vscode
-/.DS_Store
-/public/build/*.map
-/storage/logs/*.log
-/storage/sessions/*
-!/storage/sessions/.gitkeep
-/storage/temp/*
-!/storage/temp/.gitkeep
-/public/assets/uploads/*
-!/public/assets/uploads/.gitkeep
-
+# Ambiente
 .env
+.env.local
+.env.*.local
+
+# Logs
+storage/logs/*
+!storage/logs/.gitkeep
+
+# Sessions
+storage/sessions/*
+!storage/sessions/.gitkeep
+
+# Uploads temporários
+storage/temp/*
+!storage/temp/.gitkeep
+
+# Uploads de usuários (opcional - pode sincronizar via S3)
+public/uploads/*
+storage/uploads/*
+!public/uploads/.gitkeep
+!storage/uploads/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Node modules (se usar Tailwind build)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Composer
+vendor/
+composer.lock (opcional - para produção, considere versionar)
+
+# Cache
+*.cache
+.cache/
+
+# Arquivos de sistema
+Thumbs.db
+.AppleDouble
+.LSOverride

@@ -56,7 +56,7 @@ final class FollowupAlertService
             'SELECT id FROM notification_dispatches
              WHERE proposta_id = :proposta_id
                AND alert_type = :alert_type
-               AND dispatch_date = ' . Database::currentDate() . '
+               AND dispatch_date = CURDATE()
                AND recipient_email = :recipient
              LIMIT 1'
         );
@@ -73,7 +73,7 @@ final class FollowupAlertService
     {
         $stmt = Database::connection()->prepare(
             'INSERT INTO notification_dispatches (proposta_id, alert_type, dispatch_date, recipient_email, dispatch_status, error_message)
-             VALUES (:proposta_id, :alert_type, ' . Database::currentDate() . ', :recipient, :status, :error_message)'
+             VALUES (:proposta_id, :alert_type, CURDATE(), :recipient, :status, :error_message)'
         );
         $stmt->execute([
             'proposta_id' => $propostaId,

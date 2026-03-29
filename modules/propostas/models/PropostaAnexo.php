@@ -18,7 +18,7 @@ final class PropostaAnexo
             'uploaded_by' => $data['uploaded_by'],
         ]);
 
-        return Database::lastInsertId('proposta_attachments');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function byProposal(int $propostaId): array

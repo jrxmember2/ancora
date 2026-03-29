@@ -61,14 +61,14 @@ final class Proposta
 
         if (!empty($filters['q'])) {
             $where[] = '(p.id = :exact_id
-    OR ' . Database::ciLike('p.proposal_code', ':q1') . '
-    OR ' . Database::ciLike('p.client_name', ':q2') . '
-    OR ' . Database::ciLike('p.requester_name', ':q3') . '
-    OR ' . Database::ciLike('p.contact_email', ':q4') . '
-    OR ' . Database::ciLike('p.referral_name', ':q5') . '
-    OR ' . Database::ciLike('a.name', ':q6') . '
-    OR ' . Database::ciLike('s.name', ':q7') . '
-    OR ' . Database::ciLike('st.name', ':q8') . ')';
+    OR p.proposal_code LIKE :q1
+    OR p.client_name LIKE :q2
+    OR p.requester_name LIKE :q3
+    OR p.contact_email LIKE :q4
+    OR p.referral_name LIKE :q5
+    OR a.name LIKE :q6
+    OR s.name LIKE :q7
+    OR st.name LIKE :q8)';
 
             $like = '%' . $filters['q'] . '%';
             $params['q1'] = $like;
@@ -98,7 +98,7 @@ final class Proposta
             $params['send_method_id'] = (int) $filters['send_method_id'];
         }
         if (!empty($filters['year'])) {
-            $where[] = Database::year('p.proposal_date') . ' = :year';
+            $where[] = 'YEAR(p.proposal_date) = :year';
             $params['year'] = (int) $filters['year'];
         }
         if (!empty($filters['date_from'])) {
@@ -313,7 +313,7 @@ final class Proposta
                 'updated_by' => $data['updated_by'],
             ]);
 
-            $id = Database::lastInsertId('propostas');
+            $id = (int) $pdo->lastInsertId();
             $pdo->commit();
 
             return $id;
@@ -333,18 +333,18 @@ final class Proposta
 
     public static function yearsAvailable(): array
     {
-        $rows = Database::connection()->query('SELECT DISTINCT ' . Database::year('proposal_date') . ' AS year FROM propostas ORDER BY year DESC')->fetchAll();
+        $rows = Database::connection()->query('SELECT DISTINCT YEAR(proposal_date) AS year FROM propostas ORDER BY year DESC')->fetchAll();
         $years = array_map(static fn(array $row): int => (int) $row['year'], $rows);
         return $years ?: [(int) date('Y')];
     }
 
     public static function forDashboardDetail(string $type, string $key, int $year): array
     {
-        $sql = self::baseSelect() . ' WHERE ' . Database::year('p.proposal_date') . ' = :year';
+        $sql = self::baseSelect() . ' WHERE YEAR(p.proposal_date) = :year';
         $params = ['year' => $year];
 
         if ($type === 'month') {
-            $sql .= ' AND ' . Database::month('p.proposal_date') . ' = :key';
+            $sql .= ' AND MONTH(p.proposal_date) = :key';
             $params['key'] = (int) $key;
         } elseif ($type === 'service') {
             $sql .= ' AND s.name = :key';
@@ -356,14 +356,14 @@ final class Proposta
             $sql .= ' AND st.name = :key';
             $params['key'] = $key;
         } elseif ($type === 'alerts') {
-            $sql .= ' AND p.followup_date IS NOT NULL AND ' . Database::dateDiffInDays('p.followup_date', Database::currentDate()) . ' <= 5 AND st.stop_followup_alert = 0';
+            $sql .= ' AND p.followup_date IS NOT NULL AND DATEDIFF(p.followup_date, CURDATE()) <= 5 AND st.stop_followup_alert = 0';
         } elseif ($type === 'closed_year') {
             $sql .= ' AND st.system_key = :approved_status';
             $params['approved_status'] = 'approved';
         } elseif ($type === 'total_year') {
             // mantém filtro apenas por ano
         } elseif ($type === 'validity_alerts') {
-            $sql .= ' AND p.validity_days > 0 AND ' . Database::addDays('p.proposal_date', 'p.validity_days') . ' <= ' . Database::addDays(Database::currentDate(), '3') . ' AND st.stop_followup_alert = 0';
+            $sql .= ' AND p.validity_days > 0 AND DATE_ADD(p.proposal_date, INTERVAL p.validity_days DAY) <= DATE_ADD(CURDATE(), INTERVAL 3 DAY) AND st.stop_followup_alert = 0';
         }
 
         $sql .= ' ORDER BY p.id DESC';
@@ -375,7 +375,7 @@ final class Proposta
     public static function overdueFollowups(): array
     {
         $sql = self::baseSelect() . " WHERE p.followup_date IS NOT NULL
-                  AND p.followup_date < ' . Database::currentDate() . '
+                  AND p.followup_date < CURDATE()
                   AND st.stop_followup_alert = 0
                 ORDER BY p.followup_date ASC";
         return Database::connection()->query($sql)->fetchAll();
@@ -384,7 +384,7 @@ final class Proposta
     public static function expiringFollowups(): array
     {
         $sql = self::baseSelect() . " WHERE p.followup_date IS NOT NULL
-                  AND ' . Database::dateDiffInDays('p.followup_date', Database::currentDate()) . ' BETWEEN 0 AND 5
+                  AND DATEDIFF(p.followup_date, CURDATE()) BETWEEN 0 AND 5
                   AND st.stop_followup_alert = 0
                 ORDER BY p.followup_date ASC";
         return Database::connection()->query($sql)->fetchAll();
@@ -396,7 +396,7 @@ final class Proposta
                 FROM propostas p
                 INNER JOIN status_retorno st ON st.id = p.response_status_id
                 WHERE p.followup_date IS NOT NULL
-                  AND ' . Database::dateDiffInDays('p.followup_date', Database::currentDate()) . ' <= 5
+                  AND DATEDIFF(p.followup_date, CURDATE()) <= 5
                   AND st.stop_followup_alert = 0
                 ORDER BY p.followup_date ASC, p.id DESC";
         return Database::connection()->query($sql)->fetchAll();
@@ -405,11 +405,11 @@ final class Proposta
     public static function validityAlertsDue(): array
     {
         $sql = "SELECT p.*, st.name AS status_name, st.system_key AS status_system_key,
-                       ' . Database::addDays('p.proposal_date', 'p.validity_days') . ' AS validity_limit_date
+                       DATE_ADD(p.proposal_date, INTERVAL p.validity_days DAY) AS validity_limit_date
                 FROM propostas p
                 INNER JOIN status_retorno st ON st.id = p.response_status_id
                 WHERE p.validity_days > 0
-                  AND ' . Database::addDays('p.proposal_date', 'p.validity_days') . ' <= ' . Database::addDays(Database::currentDate(), '3') . '
+                  AND DATE_ADD(p.proposal_date, INTERVAL p.validity_days DAY) <= DATE_ADD(CURDATE(), INTERVAL 3 DAY)
                   AND st.stop_followup_alert = 0
                 ORDER BY validity_limit_date ASC, p.id DESC";
         return Database::connection()->query($sql)->fetchAll();
@@ -422,13 +422,13 @@ final class Proposta
         $sql = self::baseSelect() . "
         WHERE
             p.id = :exact_id
-            OR ' . Database::ciLike('p.proposal_code', ':q1') . '
-            OR ' . Database::ciLike('p.client_name', ':q2') . '
-            OR ' . Database::ciLike('p.requester_name', ':q3') . '
-            OR ' . Database::ciLike('p.contact_email', ':q4') . '
-            OR ' . Database::ciLike('p.referral_name', ':q5') . '
-            OR ' . Database::ciLike('a.name', ':q6') . '
-            OR ' . Database::ciLike('s.name', ':q7') . '
+            OR p.proposal_code LIKE :q1
+            OR p.client_name LIKE :q2
+            OR p.requester_name LIKE :q3
+            OR p.contact_email LIKE :q4
+            OR p.referral_name LIKE :q5
+            OR a.name LIKE :q6
+            OR s.name LIKE :q7
         ORDER BY p.id DESC
         LIMIT :limit
     ";

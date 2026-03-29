@@ -57,7 +57,7 @@ final class User
             'is_protected' => $data['is_protected'] ?? 0,
         ]);
 
-        return Database::lastInsertId('users');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function updateThemePreference(int $id, string $theme): bool
@@ -109,7 +109,7 @@ final class User
 
     public static function touchLastLogin(int $id): void
     {
-        $stmt = Database::connection()->prepare('UPDATE users SET last_login_at = ' . Database::currentTimestamp() . ' WHERE id = :id');
+        $stmt = Database::connection()->prepare('UPDATE users SET last_login_at = NOW() WHERE id = :id');
         $stmt->execute(['id' => $id]);
     }
 
@@ -125,7 +125,7 @@ final class User
         $stmt = Database::connection()->prepare('
         SELECT id, name, email, role, is_active
         FROM users
-        WHERE ' . Database::ciLike('name', ':q1') . ' OR ' . Database::ciLike('email', ':q2') . '
+        WHERE name LIKE :q1 OR email LIKE :q2
         ORDER BY is_protected DESC, created_at DESC
         LIMIT :limit
     ');

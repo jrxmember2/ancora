@@ -29,7 +29,7 @@ final class ClientCondominium
         $where = [];
         $params = [];
         if (!empty($filters['q'])) {
-            $where[] = '(' . Database::ciLike('c.name', ':q') . ' OR ' . Database::ciLike('c.cnpj', ':q') . ')';
+            $where[] = '(c.name LIKE :q OR c.cnpj LIKE :q)';
             $params['q'] = '%' . $filters['q'] . '%';
         }
         if (!empty($filters['type_id'])) {
@@ -105,7 +105,7 @@ final class ClientCondominium
             'created_by' => (int) $data['created_by'],
             'updated_by' => (int) $data['updated_by'],
         ]);
-        return Database::lastInsertId('client_condominiums');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function update(int $id, array $data): bool

@@ -14,6 +14,6 @@ final class ClientTimeline
     {
         $stmt = Database::connection()->prepare('INSERT INTO client_timelines (related_type, related_id, note, user_id, user_email) VALUES (:related_type, :related_id, :note, :user_id, :user_email)');
         $stmt->execute($data);
-        return Database::lastInsertId('client_timelines');
+        return (int) Database::connection()->lastInsertId();
     }
 }

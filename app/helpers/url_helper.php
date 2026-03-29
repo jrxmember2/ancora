@@ -51,9 +51,3 @@ function url_with_query(string $path, array $overrides = [], array $remove = [])
     $query = current_query($overrides, $remove);
     return base_url($path) . ($query !== '' ? '?' . $query : '');
 }
-
-
-function asset_url(string $path = ''): string
-{
-    return base_url('/' . ltrim($path, '/'));
-}

@@ -6,15 +6,12 @@ final class DashboardService
     public static function summary(int $year): array
     {
         $pdo = Database::connection();
-        $yearExpr = Database::year('proposal_date');
-        $monthExpr = Database::month('proposal_date');
-        $proposalYearExpr = Database::year('p.proposal_date');
 
         $monthlyStmt = $pdo->prepare('
-            SELECT ' . $monthExpr . ' AS month_num, COUNT(*) AS total
+            SELECT MONTH(proposal_date) AS month_num, COUNT(*) AS total
             FROM propostas
-            WHERE ' . $yearExpr . ' = :year
-            GROUP BY ' . $monthExpr . '
+            WHERE YEAR(proposal_date) = :year
+            GROUP BY MONTH(proposal_date)
             ORDER BY month_num
         ');
         $monthlyStmt->execute(['year' => $year]);
@@ -30,7 +27,7 @@ final class DashboardService
             SELECT s.name, COUNT(*) AS total
             FROM propostas p
             INNER JOIN servicos s ON s.id = p.service_id
-            WHERE ' . $proposalYearExpr . ' = :year
+            WHERE YEAR(p.proposal_date) = :year
             GROUP BY s.id, s.name
             ORDER BY total DESC
         ');
@@ -41,7 +38,7 @@ final class DashboardService
             SELECT a.name, COUNT(*) AS total
             FROM propostas p
             INNER JOIN administradoras a ON a.id = p.administradora_id
-            WHERE ' . $proposalYearExpr . ' = :year
+            WHERE YEAR(p.proposal_date) = :year
             GROUP BY a.id, a.name
             ORDER BY total DESC
         ');
@@ -53,25 +50,21 @@ final class DashboardService
                 COALESCE(SUM(p.proposal_total), 0) AS total_amount,
                 COALESCE(SUM(
                     CASE
-                        WHEN st.system_key = :approved THEN COALESCE(p.closed_total, 0)
+                        WHEN st.system_key = "approved" THEN COALESCE(p.closed_total, 0)
                         ELSE 0
                     END
                 ), 0) AS total_closed_amount,
                 COALESCE(SUM(
                     CASE
-                        WHEN st.system_key = :declined THEN COALESCE(p.proposal_total, 0)
+                        WHEN st.system_key = "declined" THEN COALESCE(p.proposal_total, 0)
                         ELSE 0
                     END
                 ), 0) AS total_declined_amount
             FROM propostas p
             INNER JOIN status_retorno st ON st.id = p.response_status_id
-            WHERE ' . $proposalYearExpr . ' = :year
+            WHERE YEAR(p.proposal_date) = :year
         ');
-        $totalStmt->execute([
-            'year' => $year,
-            'approved' => 'approved',
-            'declined' => 'declined',
-        ]);
+        $totalStmt->execute(['year' => $year]);
         $totals = $totalStmt->fetch();
 
         $alerts = array_merge(Proposta::overdueFollowups(), Proposta::expiringFollowups());

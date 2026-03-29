@@ -14,7 +14,7 @@ final class ClientUnit
         $where = [];
         $params = [];
         if (!empty($filters['q'])) {
-            $where[] = '(' . Database::ciLike('u.unit_number', ':q') . ' OR ' . Database::ciLike('c.name', ':q') . ' OR ' . Database::ciLike('o.display_name', ':q') . ' OR ' . Database::ciLike('t.display_name', ':q') . ')';
+            $where[] = '(u.unit_number LIKE :q OR c.name LIKE :q OR o.display_name LIKE :q OR t.display_name LIKE :q)';
             $params['q'] = '%' . $filters['q'] . '%';
         }
         if (!empty($filters['condominium_id'])) {
@@ -71,7 +71,7 @@ final class ClientUnit
             'created_by' => (int) $data['created_by'],
             'updated_by' => (int) $data['updated_by'],
         ]);
-        return Database::lastInsertId('client_units');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function update(int $id, array $data): bool

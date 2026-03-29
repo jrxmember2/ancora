@@ -82,7 +82,7 @@ final class ClientEntity
         $params = [];
 
         if (!empty($filters['q'])) {
-            $where[] = '(' . Database::ciLike('display_name', ':q') . ' OR ' . Database::ciLike('legal_name', ':q') . ' OR ' . Database::ciLike('cpf_cnpj', ':q') . ' OR ' . Database::ciLike('rg_ie', ':q') . ')';
+            $where[] = '(display_name LIKE :q OR legal_name LIKE :q OR cpf_cnpj LIKE :q OR rg_ie LIKE :q)';
             $params['q'] = '%' . $filters['q'] . '%';
         }
         if (!empty($filters['profile_scope'])) {
@@ -142,7 +142,7 @@ final class ClientEntity
         $stmt = Database::connection()->prepare($sql);
         $stmt->execute($payload);
 
-        return Database::lastInsertId('client_entities');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function update(int $id, array $data): bool

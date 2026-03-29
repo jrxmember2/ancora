@@ -14,7 +14,7 @@ final class ClientType
     {
         $stmt = Database::connection()->prepare('INSERT INTO client_types (scope, name, is_active, sort_order) VALUES (:scope, :name, 1, 999)');
         $stmt->execute(['scope' => $scope, 'name' => $name]);
-        return Database::lastInsertId('client_types');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function find(int $id): ?array

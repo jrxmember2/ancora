@@ -17,7 +17,7 @@ final class PropostaHistorico
             'payload_json' => $data['payload_json'],
         ]);
 
-        return Database::lastInsertId('proposta_history');
+        return (int) Database::connection()->lastInsertId();
     }
 
     public static function byProposal(int $propostaId): array
