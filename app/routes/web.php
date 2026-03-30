@@ -51,8 +51,6 @@ $router->post('/config/usuarios/{id}/update', [ConfigController::class , 'update
 $router->post('/config/usuarios/{id}/delete', [ConfigController::class , 'deleteUsuario']);
 $router->post('/config/branding/save', [ConfigController::class , 'saveBranding']);
 $router->post('/config/favicon/save', [ConfigController::class , 'saveFavicon']);
-$router->post('/config/branding/save', [ConfigController::class , 'saveBranding']);
-$router->post('/config/favicon/save', [ConfigController::class , 'saveFavicon']);
 $router->post('/config/modules/save', [ConfigController::class , 'saveModules']);
 
 $router->get('/logs', [LogController::class , 'index']);

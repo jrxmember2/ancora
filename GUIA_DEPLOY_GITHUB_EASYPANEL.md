@@ -1,454 +1,131 @@
-# Guia Completo de Deploy: GitHub + EasyPanel (VPS Ubuntu 24)
+# Guia de Deploy - GitHub + EasyPanel
 
-## Índice
+## 1. Subir para o GitHub
 
-1. [Preparação do Repositório GitHub](#1-preparação-do-repositório-github)
-2. [Configuração do EasyPanel](#2-configuração-do-easypanel)
-3. [Deploy do Projeto](#3-deploy-do-projeto)
-4. [Configuração de Banco de Dados](#4-configuração-de-banco-de-dados)
-5. [SSL/HTTPS](#5-ssl-https)
-6. [Variáveis de Ambiente](#6-variáveis-de-ambiente)
-7. [Manutenção e Backup](#7-manutenção-e-backup)
-8. [Troubleshooting](#8-troubleshooting)
-
----
-
-## 1. Preparação do Repositório GitHub
-
-### 1.1. Criar o Repositório
-
-1. Acesse [github.com](https://github.com) e faça login
-2. Clique em **"New repository"** (botão verde)
-3. Preencha os dados:
-   - **Repository name**: `ancora-hub-modular`
-   - **Description**: `Plataforma SaaS jurídica modular para gestão de propostas, clientes e processos`
-   - **Visibility**: `Private` (recomendado para código comercial)
-   - **Initialize repository**: Deixe desmarcado (você já tem código local)
-
-4. Clique em **"Create repository"**
-
-### 1.2. Configurar .gitignore
-
-Crie um arquivo `.gitignore` na raiz do projeto com o seguinte conteúdo:
-
-```gitignore
-# Ambiente
-.env
-.env.local
-.env.*.local
-
-# Logs
-storage/logs/*
-!storage/logs/.gitkeep
-
-# Sessions
-storage/sessions/*
-!storage/sessions/.gitkeep
-
-# Uploads temporários
-storage/temp/*
-!storage/temp/.gitkeep
-
-# Uploads de usuários (opcional - pode sincronizar via S3)
-public/uploads/*
-storage/uploads/*
-!public/uploads/.gitkeep
-!storage/uploads/.gitkeep
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Node modules (se usar Tailwind build)
-node_modules/
-package-lock.json
-yarn.lock
-
-# Composer
-vendor/
-composer.lock (opcional - para produção, considere versionar)
-
-# Cache
-*.cache
-.cache/
-
-# Arquivos de sistema
-Thumbs.db
-.AppleDouble
-.LSOverride
-```
-
-### 1.3. Inicializar Git Localmente
+Na pasta do projeto:
 
 ```bash
-cd /home/ubuntu/ancora_work/ancora_modular
-
-# Inicializar repositório
 git init
-
-# Adicionar todos os arquivos
 git add .
-
-# Commit inicial
-git commit -m "Initial commit: Âncora HUB Modular com TailwindCSS + DaisyUI"
-
-# Adicionar remote (substitua SEU_USUARIO)
-git remote add origin https://github.com/SEU_USUARIO/ancora-hub-modular.git
-
-# Push para main branch
+git commit -m "chore: prepara ancora hub para github e easypanel"
 git branch -M main
+git remote add origin https://github.com/SEU_USUARIO/ancora-hub.git
 git push -u origin main
 ```
 
-### 1.4. Configurar Deploy Key (SSH)
+> Não envie `.env`, `node_modules` nem uploads. O `.gitignore` já está preparado.
 
-Para deploy automático do EasyPanel:
+## 2. Criar o banco no EasyPanel
 
-```bash
-# Gerar chave SSH (se não tiver)
-ssh-keygen -t ed25519 -C "easypanel@ancora.local" -f ~/.ssh/easypanel_deploy
+Crie um serviço de **MariaDB**.
 
-# Copiar chave pública
-cat ~/.ssh/easypanel_deploy.pub
-```
+Sugestão:
 
-No GitHub:
-1. Vá para **Settings** → **Deploy keys** → **Add deploy key**
-2. Cole a chave pública
-3. Marque **"Allow write access"** (para CI/CD)
+- Database name: `ancora`
+- Username: `ancora`
+- Password: senha forte gerada no painel
 
----
+Guarde:
 
-## 2. Configuração do EasyPanel
+- host interno do serviço
+- porta
+- banco
+- usuário
+- senha
 
-### 2.1. Acessar EasyPanel
+## 3. Criar a aplicação no EasyPanel
 
-1. Acesse o painel EasyPanel da sua VPS (geralmente `https://seu-dominio.com:3000`)
-2. Faça login com suas credenciais
+Crie um novo **App Service** usando o repositório do GitHub.
 
-### 2.2. Criar Aplicação
+### Fonte
 
-1. Clique em **"Applications"** → **"New Application"**
-2. Preencha os dados:
-   - **Name**: `ancora-hub`
-   - **Domain**: `ancora.seu-dominio.com` (ou seu domínio)
-   - **Repository URL**: `https://github.com/SEU_USUARIO/ancora-hub-modular.git`
-   - **Branch**: `main`
-   - **Build Command**: (deixe vazio para PHP)
-   - **Start Command**: (deixe vazio para PHP)
+- Source: GitHub Repository
+- Repository: seu repositório
+- Branch: `main`
 
-3. Clique em **"Create"**
+### Build
 
-### 2.3. Configurar Servidor Web
+Como existe `Dockerfile` na raiz, o EasyPanel pode buildar a imagem diretamente dele.
 
-1. No EasyPanel, vá para **Applications** → **ancora-hub** → **Settings**
-2. Selecione **"Nginx"** como servidor web
-3. Configure o **Root Path**: `/public`
-4. Ative **"PHP"** e selecione versão **8.1+**
+### Porta
 
----
+- Container port: `80`
 
-## 3. Deploy do Projeto
+## 4. Variáveis de ambiente no EasyPanel
 
-### 3.1. Deploy Manual via Git
-
-```bash
-# SSH para a VPS
-ssh root@seu-vps-ip
-
-# Navegar para o diretório de aplicações
-cd /var/www/ainda-hub
-
-# Clonar repositório
-git clone https://github.com/SEU_USUARIO/ancora-hub-modular.git .
-
-# Instalar dependências PHP
-composer install --no-dev --optimize-autoloader
-
-# Definir permissões
-chmod -R 755 storage/
-chmod -R 755 public/uploads/
-chown -R www-data:www-data .
-```
-
-### 3.2. Deploy Automático via EasyPanel
-
-1. No EasyPanel, vá para **Applications** → **ancora-hub** → **Deployments**
-2. Clique em **"Deploy Now"** para fazer o primeiro deploy
-3. Configure **Webhooks** no GitHub para deploy automático:
-   - Vá para **GitHub** → **Settings** → **Webhooks** → **Add webhook**
-   - **Payload URL**: `https://easypanel.seu-dominio.com/webhooks/github`
-   - **Content type**: `application/json`
-   - **Events**: Selecione `Push events`
-
----
-
-## 4. Configuração de Banco de Dados
-
-### 4.1. Criar Banco de Dados no EasyPanel
-
-1. Vá para **Databases** → **New Database**
-2. Selecione **MySQL 8.0**
-3. Preencha:
-   - **Name**: `ancora_db`
-   - **Username**: `ancora_user`
-   - **Password**: (gere uma senha forte)
-
-4. Clique em **"Create"**
-
-### 4.2. Executar Migrations
-
-```bash
-# SSH para a VPS
-ssh root@seu-vps-ip
-
-# Navegar para o projeto
-cd /var/www/ancora-hub
-
-# Executar migrations
-php scripts/bootstrap.php
-
-# Ou manualmente via MySQL
-mysql -u ancora_user -p ancora_db < database/migrations/000_full_install.sql
-mysql -u ancora_user -p ancora_db < database/migrations/010_clientes_module.sql
-mysql -u ancora_user -p ancora_db < database/migrations/2026_03_module_hub.sql
-mysql -u ancora_user -p ancora_db < database/migrations/2026_03_proposta_premium.sql
-mysql -u ancora_user -p ancora_db < database/migrations/2026_03_desktop_permissions.sql
-```
-
-### 4.3. Criar Usuário Administrativo
-
-```bash
-# Conectar ao MySQL
-mysql -u ancora_user -p ancora_db
-
-# Executar SQL (substitua os valores)
-INSERT INTO users (name, email, password, role, created_at) VALUES (
-    'Administrador',
-    'admin@seu-dominio.com',
-    '$2y$10$...',  -- Hash bcrypt da senha
-    'superadmin',
-    NOW()
-);
-```
-
-Para gerar o hash bcrypt, use PHP:
-```php
-echo password_hash('sua_senha_forte', PASSWORD_BCRYPT);
-```
-
----
-
-## 5. SSL/HTTPS
-
-### 5.1. Configurar SSL no EasyPanel
-
-1. Vá para **Applications** → **ancora-hub** → **SSL**
-2. Clique em **"Generate Certificate"** (Let's Encrypt)
-3. Selecione seu domínio
-4. Clique em **"Issue Certificate"**
-
-O EasyPanel renovará automaticamente a cada 90 dias.
-
-### 5.2. Redirecionar HTTP para HTTPS
-
-No EasyPanel, vá para **Applications** → **ancora-hub** → **Settings**:
-- Ative **"Force HTTPS"**
-- Ative **"Redirect HTTP to HTTPS"**
-
----
-
-## 6. Variáveis de Ambiente
-
-### 6.1. Criar .env em Produção
-
-SSH para a VPS e crie o arquivo `.env`:
-
-```bash
-ssh root@seu-vps-ip
-cd /var/www/ancora-hub
-nano .env
-```
-
-Preencha com:
+Adicione estas variáveis:
 
 ```env
-# Aplicação
-APP_NAME="Âncora HUB Modular"
-APP_ENV=production
-APP_DEBUG=false
-APP_URL=https://ancora.seu-dominio.com
+APP_NAME=Âncora
+APP_URL=https://ancora.seudominio.com
+APP_TIMEZONE=America/Sao_Paulo
+DEFAULT_MODULE=propostas
 
-# Banco de Dados
-DB_HOST=localhost
+DB_CONNECTION=mysql
+DB_HOST=HOST_INTERNO_DO_MARIADB
 DB_PORT=3306
-DB_NAME=ancora_db
-DB_USER=ancora_user
-DB_PASSWORD=sua_senha_forte_aqui
-
-# Segurança
-SESSION_TIMEOUT=3600
-CSRF_TOKEN_LENGTH=32
-
-# Email (opcional - para notificações)
-MAIL_DRIVER=smtp
-MAIL_HOST=smtp.seu-provedor.com
-MAIL_PORT=587
-MAIL_USERNAME=seu-email@seu-dominio.com
-MAIL_PASSWORD=sua_senha_email
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@seu-dominio.com
-MAIL_FROM_NAME="Âncora HUB"
-
-# S3/Storage (opcional - para uploads)
-STORAGE_DRIVER=local
-# Se usar S3:
-# AWS_ACCESS_KEY_ID=sua_chave
-# AWS_SECRET_ACCESS_KEY=sua_secret
-# AWS_DEFAULT_REGION=us-east-1
-# AWS_BUCKET=seu-bucket
+DB_DATABASE=ancora
+DB_USERNAME=ancora
+DB_PASSWORD=SUA_SENHA
+DB_CHARSET=utf8mb4
 ```
 
-Salve com `Ctrl+O`, `Enter`, `Ctrl+X`.
+## 5. Domínio
 
-### 6.2. Definir Permissões
+No serviço da aplicação:
+
+- configure o domínio final
+- ative HTTPS/SSL
+
+## 6. Importar a base
+
+Após o banco estar no ar, importe o arquivo:
 
 ```bash
-chmod 600 .env
-chown www-data:www-data .env
+database/migrations/000_full_install.sql
 ```
 
----
+Você pode importar de três formas:
 
-## 7. Manutenção e Backup
+- cliente SQL externo
+- terminal do container do banco
+- ferramenta de administração conectada ao MariaDB
 
-### 7.1. Backup Automático do Banco de Dados
+## 7. Primeiro acesso
 
-No EasyPanel, vá para **Databases** → **ancora_db** → **Backups**:
-- Clique em **"Enable Automatic Backups"**
-- Selecione frequência (diária recomendada)
-- Configure retenção (30 dias mínimo)
+Login inicial:
 
-### 7.2. Backup de Arquivos
+- E-mail: `junior@serratech.br`
+- Senha: `Ancora@123`
 
-```bash
-# SSH para a VPS
-ssh root@seu-vps-ip
+Troque a senha após entrar.
 
-# Criar backup
-tar -czf /backups/ancora-$(date +%Y%m%d).tar.gz /var/www/ancora-hub
+## 8. Como funciona o build
 
-# Enviar para S3 (opcional)
-aws s3 cp /backups/ancora-$(date +%Y%m%d).tar.gz s3://seu-bucket/backups/
-```
+O `Dockerfile` faz duas etapas:
 
-### 7.3. Monitoramento
+1. usa Node para gerar `public/assets/css/app.css`
+2. sobe PHP 8.4 + Apache com rewrite habilitado
 
-No EasyPanel:
-1. Vá para **Monitoring**
-2. Configure alertas para:
-   - CPU > 80%
-   - Memória > 85%
-   - Disco > 90%
-   - Erro HTTP 5xx
+O Apache já está apontando para `public/`.
 
-### 7.4. Logs
+## 9. Estrutura importante em produção
 
-```bash
-# Ver logs da aplicação
-tail -f /var/www/ancora-hub/storage/logs/app.log
+Persistem no próprio volume do app:
 
-# Ver logs do Nginx
-tail -f /var/log/nginx/error.log
+- `storage/`
+- `public/uploads/`
+- `public/assets/uploads/branding/`
 
-# Ver logs do PHP
-tail -f /var/log/php-fpm.log
-```
+Se quiser um setup mais robusto depois, o próximo passo é separar uploads para volume dedicado ou storage externo.
 
----
+## 10. Checklist final
 
-## 8. Troubleshooting
-
-### Problema: "Permission Denied" ao fazer deploy
-
-**Solução:**
-```bash
-ssh root@seu-vps-ip
-chown -R www-data:www-data /var/www/ancora-hub
-chmod -R 755 /var/www/ancora-hub
-chmod -R 777 /var/www/ancora-hub/storage
-```
-
-### Problema: Banco de dados não conecta
-
-**Solução:**
-```bash
-# Verificar credenciais no .env
-cat /var/www/ancora-hub/.env | grep DB_
-
-# Testar conexão
-mysql -h localhost -u ancora_user -p -e "SELECT 1"
-```
-
-### Problema: Erro 500 após deploy
-
-**Solução:**
-```bash
-# Verificar logs
-tail -f /var/www/ancora-hub/storage/logs/app.log
-
-# Limpar cache (se houver)
-rm -rf /var/www/ancora-hub/storage/cache/*
-
-# Reexecutar migrations
-php /var/www/ancora-hub/scripts/bootstrap.php
-```
-
-### Problema: Uploads não funcionam
-
-**Solução:**
-```bash
-# Verificar permissões
-chmod -R 777 /var/www/ancora-hub/public/uploads
-chmod -R 777 /var/www/ancora-hub/storage/uploads
-
-# Verificar espaço em disco
-df -h
-```
-
----
-
-## Checklist de Deploy
-
-- [ ] Repositório criado no GitHub
-- [ ] `.gitignore` configurado
-- [ ] Código enviado para GitHub
-- [ ] Aplicação criada no EasyPanel
-- [ ] Banco de dados criado
-- [ ] Migrations executadas
-- [ ] Usuário admin criado
-- [ ] `.env` configurado em produção
-- [ ] SSL/HTTPS ativado
-- [ ] Webhooks do GitHub configurados
-- [ ] Backup automático ativado
-- [ ] Monitoramento configurado
-- [ ] Domínio apontando para VPS
-- [ ] Teste de acesso: `https://ancora.seu-dominio.com`
-
----
-
-## Próximas Etapas
-
-1. **Monitoramento**: Configure alertas no EasyPanel
-2. **CI/CD**: Configure GitHub Actions para testes automáticos
-3. **CDN**: Configure Cloudflare para cache estático
-4. **Email**: Configure serviço de email para notificações
-5. **Backup Externo**: Configure backup em S3 ou Google Cloud Storage
-
----
-
-**Suporte**: Para dúvidas sobre EasyPanel, consulte [docs.easypanel.io](https://docs.easypanel.io)
+- repositório no GitHub criado
+- `.env` fora do GitHub
+- MariaDB criado no EasyPanel
+- variáveis preenchidas
+- domínio configurado
+- SQL importado
+- deploy executado
+- login realizado

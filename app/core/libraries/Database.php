@@ -9,13 +9,24 @@ final class Database
     {
         if (self::$instance === null) {
             $config = require CONFIG_PATH . '/database.php';
-            $dsn = sprintf(
-                'mysql:host=%s;port=%s;dbname=%s;charset=%s',
-                $config['host'],
-                $config['port'],
-                $config['dbname'],
-                $config['charset']
-            );
+            $driver = strtolower((string) ($config['driver'] ?? 'mysql'));
+
+            if (in_array($driver, ['pgsql', 'postgres', 'postgresql'], true)) {
+                $dsn = sprintf(
+                    'pgsql:host=%s;port=%s;dbname=%s',
+                    $config['host'],
+                    $config['port'],
+                    $config['dbname']
+                );
+            } else {
+                $dsn = sprintf(
+                    'mysql:host=%s;port=%s;dbname=%s;charset=%s',
+                    $config['host'],
+                    $config['port'],
+                    $config['dbname'],
+                    $config['charset']
+                );
+            }
 
             self::$instance = new PDO($dsn, $config['username'], $config['password'], [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

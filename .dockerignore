@@ -1,0 +1,13 @@
+.git
+.gitignore
+node_modules
+npm-debug.log
+README.md
+DIAGNOSTICO_E_ROADMAP.md
+GUIA_DEPLOY_GITHUB_EASYPANEL.md
+COMPONENTES_UI_TAILWIND_DAISYUI.md
+storage/logs/*
+storage/sessions/*
+storage/temp/*
+.env
+ancora_hub_final.zip

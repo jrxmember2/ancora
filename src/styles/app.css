@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import '../../public/assets/css/base.css';
+@import '../../public/assets/css/components.css';
+@import '../../public/assets/css/pages.css';
+@import '../../public/assets/css/modern-overrides.css';
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary,
+  .btn.btn-primary {
+    @apply border-0 text-white shadow-premium;
+    background: linear-gradient(180deg, #941415 0%, #7f0f10 100%);
+  }
+
+  .btn-primary:hover,
+  .btn.btn-primary:hover {
+    background: linear-gradient(180deg, #a21617 0%, #8b1112 100%);
+  }
+
+  .card-soft {
+    @apply rounded-3xl border border-base-300/70 bg-base-100/90 shadow-soft backdrop-blur;
+  }
+}

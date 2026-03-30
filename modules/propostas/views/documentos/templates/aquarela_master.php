@@ -1,5 +1,5 @@
 <?php
-$templateContent = require ROOT_PATH . '/app/modules/propostas/config/proposal_template_content.php';
+$templateContent = require ROOT_PATH . '/modules/propostas/config/proposal_template_content.php';
 
 $branding = $renderData['branding'];
 $assets = $renderData['assets'];

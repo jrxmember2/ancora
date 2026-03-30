@@ -14,7 +14,7 @@ final class ConfigController extends BaseController
         $logoDarkPath = Setting::get('branding_logo_dark_path', '/imgs/logomarca.svg') ?: '/imgs/logomarca.svg';
         $logoDarkUrl = preg_match('~^(https?:)?//~', $logoDarkPath) ? $logoDarkPath : base_url($logoDarkPath);
 
-        $faviconPath = Setting::get('branding_favicon_path', '/favicon.ico') ?: '/favicon.ico';
+        $faviconPath = Setting::get('branding_favicon_path', '/favicon.svg') ?: '/favicon.svg';
         $faviconUrl = preg_match('~^(https?:)?//~', $faviconPath) ? $faviconPath : base_url($faviconPath);
         $premiumLogoVariant = Setting::get('branding_premium_logo_variant', 'light') ?: 'light';
         $premiumLogoVariant = $premiumLogoVariant === 'dark' ? 'dark' : 'light';
@@ -71,7 +71,7 @@ final class ConfigController extends BaseController
         $newLightPath = $currentLightPath;
         $newDarkPath = $currentDarkPath;
 
-        $uploadDir = ROOT_PATH . '/assets/uploads/branding';
+        $uploadDir = PUBLIC_PATH . '/assets/uploads/branding';
         if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
             $_SESSION['flash_error'] = 'Não foi possível criar a pasta de branding.';
             $this->back();
@@ -109,8 +109,8 @@ final class ConfigController extends BaseController
 
             $newLightPath = '/assets/uploads/branding/' . $fileName;
 
-            if (str_starts_with($currentLightPath, '/assets/uploads/branding/') && is_file(ROOT_PATH . $currentLightPath)) {
-                @unlink(ROOT_PATH . $currentLightPath);
+            if (str_starts_with($currentLightPath, '/assets/uploads/branding/') && is_file(PUBLIC_PATH . $currentLightPath)) {
+                @unlink(PUBLIC_PATH . $currentLightPath);
             }
         }
 
@@ -146,8 +146,8 @@ final class ConfigController extends BaseController
 
             $newDarkPath = '/assets/uploads/branding/' . $fileName;
 
-            if (str_starts_with($currentDarkPath, '/assets/uploads/branding/') && is_file(ROOT_PATH . $currentDarkPath)) {
-                @unlink(ROOT_PATH . $currentDarkPath);
+            if (str_starts_with($currentDarkPath, '/assets/uploads/branding/') && is_file(PUBLIC_PATH . $currentDarkPath)) {
+                @unlink(PUBLIC_PATH . $currentDarkPath);
             }
         }
 
@@ -204,7 +204,7 @@ final class ConfigController extends BaseController
         require_enabled_module('config');
         $this->validateCsrfOrFail();
 
-        $currentPath = Setting::get('branding_favicon_path', '/favicon.ico') ?: '/favicon.ico';
+        $currentPath = Setting::get('branding_favicon_path', '/favicon.svg') ?: '/favicon.svg';
         $newFaviconPath = $currentPath;
 
         if (empty($_FILES['branding_favicon']['name'] ?? '')) {
@@ -234,7 +234,7 @@ final class ConfigController extends BaseController
             $this->back();
         }
 
-        $uploadDir = ROOT_PATH . '/assets/uploads/branding';
+        $uploadDir = PUBLIC_PATH . '/assets/uploads/branding';
         if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
             $_SESSION['flash_error'] = 'Não foi possível criar a pasta de branding.';
             $this->back();
@@ -250,8 +250,8 @@ final class ConfigController extends BaseController
 
         $newFaviconPath = '/assets/uploads/branding/' . $fileName;
 
-        if (str_starts_with($currentPath, '/assets/uploads/branding/') && is_file(ROOT_PATH . $currentPath)) {
-            @unlink(ROOT_PATH . $currentPath);
+        if (str_starts_with($currentPath, '/assets/uploads/branding/') && is_file(PUBLIC_PATH . $currentPath)) {
+            @unlink(PUBLIC_PATH . $currentPath);
         }
 
         Setting::set(

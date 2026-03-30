@@ -88,6 +88,7 @@ final class PropostaController extends BaseController
     public function exportCsv(): void
     {
         require_auth();
+        require_enabled_module('propostas');
 
         $filters = $this->listFilters();
         $items = Proposta::allFiltered($filters);
@@ -148,6 +149,7 @@ final class PropostaController extends BaseController
     public function create(): void
     {
         require_auth();
+        require_enabled_module('propostas');
         $this->view('propostas/views/propostas/create', array_merge([
             'title' => 'Nova Proposta',
             'currentRoute' => 'propostas',
@@ -161,6 +163,7 @@ final class PropostaController extends BaseController
     public function store(): void
     {
         require_auth();
+        require_enabled_module('propostas');
         $this->validateCsrfOrFail();
 
         $payload = PropostaService::payloadFromRequest($_POST);
@@ -185,6 +188,7 @@ final class PropostaController extends BaseController
     public function show(string $id): void
     {
         require_auth();
+        require_enabled_module('propostas');
         $proposalId = (int) $id;
         $data = $this->loadProposalPageData($proposalId);
 
@@ -200,6 +204,7 @@ final class PropostaController extends BaseController
     public function printView(string $id): void
     {
         require_auth();
+        require_enabled_module('propostas');
         $proposalId = (int) $id;
         $data = $this->loadProposalPageData($proposalId);
 
@@ -214,6 +219,7 @@ final class PropostaController extends BaseController
     public function edit(string $id): void
     {
         require_auth();
+        require_enabled_module('propostas');
         $proposalId = (int) $id;
         $data = $this->loadProposalPageData($proposalId);
 
@@ -232,6 +238,7 @@ final class PropostaController extends BaseController
     public function update(string $id): void
     {
         require_auth();
+        require_enabled_module('propostas');
         $this->validateCsrfOrFail();
 
         $proposalId = (int) $id;
@@ -271,6 +278,7 @@ final class PropostaController extends BaseController
     public function delete(string $id): void
     {
         require_auth();
+        require_enabled_module('propostas');
         $this->validateCsrfOrFail();
 
         $proposalId = (int) $id;
@@ -288,6 +296,7 @@ final class PropostaController extends BaseController
     public function uploadAttachment(string $id): void
     {
         require_auth();
+        require_enabled_module('propostas');
         $this->validateCsrfOrFail();
 
         $proposalId = (int) $id;
@@ -357,6 +366,7 @@ final class PropostaController extends BaseController
     public function downloadAttachment(string $id, string $attachmentId): void
     {
         require_auth();
+        require_enabled_module('propostas');
 
         $proposalId = (int) $id;
         $attachment = PropostaAnexo::findByProposal($proposalId, (int) $attachmentId);
@@ -384,6 +394,7 @@ final class PropostaController extends BaseController
     public function deleteAttachment(string $id, string $attachmentId): void
     {
         require_auth();
+        require_enabled_module('propostas');
         $this->validateCsrfOrFail();
 
         $proposalId = (int) $id;

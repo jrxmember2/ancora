@@ -107,6 +107,6 @@ final class ProposalDocumentController extends BaseController
             redirect('/propostas/' . (int)$id . '/documento');
         }
 
-        require ROOT_PATH . '/app/modules/propostas/views/documentos/print.php';
+        require ROOT_PATH . '/modules/propostas/views/documentos/print.php';
     }
 }

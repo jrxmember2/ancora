@@ -7,6 +7,6 @@
     <link rel="stylesheet" href="<?= htmlspecialchars(base_url('/assets/css/proposal-template-aquarela.css')); ?>">
 </head>
 <body class="proposal-print" onload="window.print()">
-    <?php require ROOT_PATH . '/app/modules/propostas/views/documentos/templates/aquarela_master.php'; ?>
+    <?php require ROOT_PATH . '/modules/propostas/views/documentos/templates/aquarela_master.php'; ?>
 </body>
 </html>

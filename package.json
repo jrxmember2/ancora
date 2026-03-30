@@ -1,0 +1,16 @@
+{
+  "name": "ancora-hub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Âncora HUB modular com Tailwind CSS + DaisyUI",
+  "scripts": {
+    "build": "tailwindcss -c tailwind.config.js -i ./src/styles/app.css -o ./public/assets/css/app.css --minify",
+    "dev": "tailwindcss -c tailwind.config.js -i ./src/styles/app.css -o ./public/assets/css/app.css --watch"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "daisyui": "^4.12.24",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17"
+  }
+}

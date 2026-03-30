@@ -1,48 +1,23 @@
-# Ambiente
 .env
-.env.local
-.env.*.local
-
-# Logs
-storage/logs/*
-!storage/logs/.gitkeep
-
-# Sessions
-storage/sessions/*
-!storage/sessions/.gitkeep
-
-# Uploads temporários
-storage/temp/*
-!storage/temp/.gitkeep
-
-# Uploads de usuários (opcional - pode sincronizar via S3)
-public/uploads/*
-storage/uploads/*
-!public/uploads/.gitkeep
-!storage/uploads/.gitkeep
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
-
-# Node modules (se usar Tailwind build)
+.env.*
+!.env.example
 node_modules/
-package-lock.json
-yarn.lock
-
-# Composer
-vendor/
-composer.lock (opcional - para produção, considere versionar)
-
-# Cache
-*.cache
-.cache/
-
-# Arquivos de sistema
+/vendor/
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/sessions/*
+!/storage/sessions/.gitkeep
+/storage/temp/*
+!/storage/temp/.gitkeep
+/public/uploads/**
+!/public/uploads/.gitkeep
+!/public/uploads/propostas/.gitkeep
+!/public/uploads/clientes/.gitkeep
+!/public/uploads/contratos/.gitkeep
+!/public/uploads/branding/.gitkeep
+/public/assets/uploads/**
+!/public/assets/uploads/.gitkeep
+!/public/assets/uploads/branding/.gitkeep
+.DS_Store
 Thumbs.db
-.AppleDouble
-.LSOverride
+npm-debug.log*

@@ -12,7 +12,7 @@ $brandLogoDarkUrl = preg_match('~^(https?:)?//~', $brandLogoDarkPath)
     ? $brandLogoDarkPath
     : base_url($brandLogoDarkPath);
 
-$brandFaviconPath = Setting::get('branding_favicon_path', '/favicon.ico') ?: '/favicon.ico';
+$brandFaviconPath = Setting::get('branding_favicon_path', '/favicon.svg') ?: '/favicon.svg';
 $brandFaviconUrl = preg_match('~^(https?:)?//~', $brandFaviconPath)
     ? $brandFaviconPath
     : base_url($brandFaviconPath);
@@ -71,36 +71,7 @@ if (!empty($_SESSION['auth_user']['theme_preference'])) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.10.2/dist/full.min.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#941415',
-                        'primary-focus': '#b71c1c',
-                    }
-                }
-            },
-            daisyui: {
-                themes: [
-                    {
-                        light: {
-                            ...require("daisyui/src/theming/themes")["light"],
-                            primary: '#941415',
-                            "primary-focus": '#b71c1c',
-                        },
-                        dark: {
-                            ...require("daisyui/src/theming/themes")["dark"],
-                            primary: '#941415',
-                            "primary-focus": '#b71c1c',
-                        },
-                    },
-                ],
-            },
-        }
-    </script>
+    <link rel="stylesheet" href="<?= htmlspecialchars(base_url('/assets/css/app.css'), ENT_QUOTES, 'UTF-8'); ?>">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.min.css">
 </head>
 <body class="app-body" style="

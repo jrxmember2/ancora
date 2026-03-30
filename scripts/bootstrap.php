@@ -23,7 +23,7 @@ function env(string $key, mixed $default = null): mixed
         }
     }
 
-    return $values[$key] ?? $_ENV[$key] ?? $default;
+    return $values[$key] ?? $_ENV[$key] ?? getenv($key) ?: $default;
 }
 
 function bootstrap_app(): void
